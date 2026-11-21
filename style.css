@@ -1,0 +1,207 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #0b5c3b;
+  color: #ffffff;
+  min-height: 100vh;
+  padding: 20px 16px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+}
+
+#location-status {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.location-card {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.location-card .coord {
+  font-family: monospace;
+  font-size: 1rem;
+  color: #ffd166;
+  margin: 4px 0;
+}
+
+.next-prayer-box {
+  background: #ffd166;
+  color: #0b5c3b;
+  border-radius: 18px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.next-prayer-box .label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.75;
+}
+
+.next-prayer-box .name {
+  font-size: 1.6rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  margin: 6px 0;
+}
+
+.next-prayer-box .countdown {
+  font-size: 2.6rem;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.next-prayer-box .at-time {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+#prayer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.prayer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  transition: background 0.3s;
+}
+
+.prayer-row.next {
+  background: rgba(255, 209, 102, 0.25);
+  border-left: 4px solid #ffd166;
+}
+
+.prayer-row.passed {
+  opacity: 0.45;
+}
+
+.prayer-name {
+  text-transform: capitalize;
+}
+
+.prayer-time {
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+button {
+  background: #ffd166;
+  color: #0b5c3b;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.settings {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.settings select {
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  background: #ffffff;
+  color: #0b5c3b;
+}
+
+.active-timer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+  z-index: 100;
+  animation: pulse 2s infinite;
+}
+
+.active-timer.hidden {
+  display: none;
+}
+
+.active-timer h2 {
+  font-size: 2rem;
+  color: #ffd166;
+  margin-bottom: 10px;
+}
+
+#countdown {
+  font-size: 4rem;
+  font-weight: bold;
+  margin: 20px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+#dismiss-timer {
+  margin-top: 20px;
+}
+
+@keyframes pulse {
+  0% {
+    background: rgba(0, 0, 0, 0.92);
+  }
+  50% {
+    background: rgba(11, 92, 59, 0.97);
+  }
+  100% {
+    background: rgba(0, 0, 0, 0.92);
+  }
+}
+
+@media (min-width: 480px) {
+  body {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+}

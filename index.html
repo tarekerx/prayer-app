@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b5c3b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Prayer Times</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕌</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="sound-banner" style="background: #ffd166; color: #0b5c3b; padding: 12px 16px; text-align: center; font-weight: bold; border-radius: 12px; margin-bottom: 14px; cursor: pointer;">🔔 Tap here to enable prayer-time sound</div>
+
+  <header>
+    <h1>🕌 Prayer Times</h1>
+    <p id="location-status">Getting your location…</p>
+  </header>
+
+  <main>
+    <div id="prayer-list"></div>
+
+    <div class="controls">
+      <button id="refresh-btn">🔄 Refresh Location &amp; Times</button>
+    </div>
+
+    <div class="settings">
+      <label for="method-select">Calculation Method:
+        <select id="method-select">
+          <option value="MuslimWorldLeague">Muslim World League</option>
+          <option value="UmmAlQura">Umm Al-Qura (Saudi)</option>
+          <option value="Egyptian">Egyptian</option>
+          <option value="Karachi">Karachi</option>
+          <option value="NorthAmerica">ISNA (North America)</option>
+          <option value="Dubai">Dubai</option>
+          <option value="Qatar">Qatar</option>
+          <option value="Kuwait">Kuwait</option>
+          <option value="Singapore">Singapore</option>
+          <option value="Turkey">Turkey</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="active-timer" class="active-timer hidden">
+      <h2 id="timer-prayer-name"></h2>
+      <p>Time remaining:</p>
+      <div id="countdown">15:00</div>
+      <button id="dismiss-timer">Dismiss</button>
+    </div>
+  </main>
+
+  <script src="prayerTimes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

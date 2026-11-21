@@ -1,0 +1,15 @@
+{
+  "name": "My Prayer Times",
+  "short_name": "Prayer Times",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b5c3b",
+  "theme_color": "#0b5c3b",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2933/2933245.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
