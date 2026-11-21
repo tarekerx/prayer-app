@@ -69,43 +69,70 @@ function saveData(data) {
   }
 }
 
-function getLocation() {
+function getPosition(options) {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error("Geolocation is not supported by this browser"));
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coords = position.coords;
-        resolve({
-          lat: coords.latitude,
-          lng: coords.longitude,
-          accuracy: coords.accuracy,
-          fetchedAt: new Date().toISOString()
-        });
-      },
-      (error) => {
-        let message = "Unable to get your location";
-
-        if (error && error.code === 1) {
-          message = "Location permission denied";
-        } else if (error && error.code === 2) {
-          message = "Location unavailable";
-        } else if (error && error.code === 3) {
-          message = "Location request timed out";
-        }
-
-        reject(new Error(message));
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-      }
-    );
+    navigator.geolocation.getCurrentPosition(resolve, reject, options);
   });
+}
+
+function locationFromPosition(position) {
+  const coords = position.coords;
+  return {
+    lat: coords.latitude,
+    lng: coords.longitude,
+    accuracy: coords.accuracy,
+    fetchedAt: new Date().toISOString()
+  };
+}
+
+function getLocationErrorMessage(error) {
+  if (error && error.code === 1) {
+    return "Location permission denied";
+  }
+  if (error && error.code === 2) {
+    return "Location unavailable";
+  }
+  if (error && error.code === 3) {
+    return "Location request timed out";
+  }
+  return "Unable to get your location";
+}
+
+async function getLocation() {
+  if (!navigator.geolocation) {
+    throw new Error("Geolocation is not supported by this browser");
+  }
+
+  try {
+    const position = await getPosition({
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    });
+    return locationFromPosition(position);
+  } catch (firstError) {
+    // Do not retry when the user explicitly denied permission.
+    if (firstError && firstError.code === 1) {
+      throw new Error(getLocationErrorMessage(firstError));
+    }
+
+    try {
+      // Fallback to a faster, less accurate fix (often works indoors/mobile).
+      const position = await getPosition({
+        enableHighAccuracy: false,
+        timeout: 15000,
+        maximumAge: 60000
+      });
+      return locationFromPosition(position);
+    } catch (secondError) {
+      throw new Error(getLocationErrorMessage(secondError));
+    }
+  }
 }
 
 function calculatePrayerTimes(lat, lng, methodName) {
@@ -139,7 +166,7 @@ function applyLocationAndTimes(location, method, data) {
 
 function renderLocation(location) {
   if (!location) {
-    locDetails.textContent = "Location unavailable";
+    locDetails.textContent = "Default: Riyadh — Al Aqeeq";
     return;
   }
 

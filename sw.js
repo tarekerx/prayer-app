@@ -1,4 +1,4 @@
-const CACHE = "prayer-app-v3";
+const CACHE = "prayer-app-v4";
 const FILES = [
   "./index.html",
   "./style.css",
