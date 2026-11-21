@@ -4,6 +4,14 @@ const PRAYER_KEYS = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
 const TIMER_MINUTES = 15;
 const STORAGE_KEY = "prayerAppData";
 
+// Default location: Al Aqeeq district, Riyadh, Saudi Arabia.
+// GPS is still requested first; this is used immediately and as a fallback.
+const DEFAULT_LOCATION = {
+  lat: 24.77361,
+  lng: 46.62998,
+  label: "Riyadh — Al Aqeeq"
+};
+
 const locationStatus = document.getElementById("location-status");
 const prayerList = document.getElementById("prayer-list");
 const refreshBtn = document.getElementById("refresh-btn");
@@ -104,6 +112,31 @@ function calculatePrayerTimes(lat, lng, methodName) {
   return PrayerTimesLib.calculate(lat, lng, methodName);
 }
 
+function createDefaultLocation() {
+  return {
+    lat: DEFAULT_LOCATION.lat,
+    lng: DEFAULT_LOCATION.lng,
+    accuracy: 0,
+    fetchedAt: new Date().toISOString(),
+    isDefault: true,
+    label: DEFAULT_LOCATION.label
+  };
+}
+
+function applyLocationAndTimes(location, method, data) {
+  renderLocation(location);
+
+  const times = calculatePrayerTimes(location.lat, location.lng, method);
+
+  data.times = times;
+  data.lastCalculated = new Date().toISOString();
+  saveData(data);
+
+  renderList(times);
+  startNextPrayerCountdown(times);
+  schedulePrayerAlerts(times);
+}
+
 function renderLocation(location) {
   if (!location) {
     locDetails.textContent = "Location unavailable";
@@ -115,6 +148,21 @@ function renderLocation(location) {
   const ageMinutes = Math.floor(ageMs / 60000);
   const ageStr =
     !Number.isFinite(ageMs) || ageMinutes < 1 ? "just now" : ageMinutes + " min ago";
+
+  if (location.isDefault) {
+    locDetails.innerHTML =
+      '<div class="coord">' +
+      location.lat.toFixed(5) +
+      "°, " +
+      location.lng.toFixed(5) +
+      "°</div>" +
+      "<div>Default: " +
+      (location.label || DEFAULT_LOCATION.label) +
+      " · fetched " +
+      ageStr +
+      "</div>";
+    return;
+  }
 
   locDetails.innerHTML =
     '<div class="coord">' +
@@ -466,43 +514,55 @@ async function init(forceRefresh = false) {
   methodSelect.value = method;
   data.method = method;
 
+  const hasSavedLocation = !!data.location;
   let location = data.location;
+  let defaultApplied = false;
 
-  if (forceRefresh || !location) {
-    locationStatus.textContent = "Getting your precise location…";
-
-    try {
-      location = await getLocation();
-      data.location = location;
-      saveData(data);
-      locationStatus.textContent = "📍 Location updated";
-    } catch (error) {
-      const message =
-        error && error.message ? error.message : "Unable to get your location";
-      locationStatus.textContent = message;
-
-      if (!location) {
-        renderLocation(null);
-        return;
-      }
-
-      locationStatus.textContent = "Using last saved location";
-    }
-  } else {
-    locationStatus.textContent = "📍 Using saved location";
+  if (!location) {
+    location = createDefaultLocation();
+    data.location = location;
+    saveData(data);
   }
 
-  renderLocation(location);
+  // Show the Riyadh default immediately while a first GPS fix is requested.
+  if (!hasSavedLocation) {
+    locationStatus.textContent = "📍 Default: Riyadh — Al Aqeeq";
+    applyLocationAndTimes(location, method, data);
+    defaultApplied = true;
+  }
 
-  const times = calculatePrayerTimes(location.lat, location.lng, method);
+  if (!forceRefresh && hasSavedLocation) {
+    locationStatus.textContent = location.isDefault
+      ? "📍 Default: Riyadh — Al Aqeeq"
+      : "📍 Using saved location";
+    applyLocationAndTimes(location, method, data);
+    return;
+  }
 
-  data.times = times;
-  data.lastCalculated = new Date().toISOString();
-  saveData(data);
+  locationStatus.textContent = "Getting your precise location…";
 
-  renderList(times);
-  startNextPrayerCountdown(times);
-  schedulePrayerAlerts(times);
+  try {
+    const freshLocation = await getLocation();
+    data.location = freshLocation;
+    saveData(data);
+    locationStatus.textContent = "📍 Location updated";
+    applyLocationAndTimes(freshLocation, method, data);
+  } catch (error) {
+    const message =
+      error && error.message ? error.message : "Unable to get your location";
+
+    if (hasSavedLocation) {
+      locationStatus.textContent = location.isDefault
+        ? "📍 Default: Riyadh — Al Aqeeq"
+        : "Using last saved location";
+      applyLocationAndTimes(location, method, data);
+    } else {
+      locationStatus.textContent = "📍 Default: Riyadh — Al Aqeeq";
+      if (!defaultApplied) {
+        applyLocationAndTimes(location, method, data);
+      }
+    }
+  }
 }
 
 refreshBtn.addEventListener("click", () => init(true));
